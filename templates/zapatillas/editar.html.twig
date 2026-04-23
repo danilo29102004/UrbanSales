@@ -1,0 +1,169 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Editar Zapatilla - UrbanSole{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-edit"></i> Editar Zapatilla
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form id="editarZapatillaForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="modelo" class="form-label">Modelo <span class="text-danger">*</span></label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="modelo" 
+                                    name="modelo" 
+                                    value="{{ zapatilla.modelo }}"
+                                    required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="marca" class="form-label">Marca <span class="text-danger">*</span></label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="marca" 
+                                    name="marca" 
+                                    value="{{ zapatilla.marca }}"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="talla" class="form-label">Talla <span class="text-danger">*</span></label>
+                                <input 
+                                    type="number" 
+                                    class="form-control" 
+                                    id="talla" 
+                                    name="talla" 
+                                    value="{{ zapatilla.talla }}"
+                                    step="0.5"
+                                    min="30"
+                                    max="50"
+                                    required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="categoria_id" class="form-label">Categoría <span class="text-danger">*</span></label>
+                                <select class="form-control" id="categoria_id" name="categoria_id" required>
+                                    <option value="">-- Selecciona una categoría --</option>
+                                    {% for categoria in categorias %}
+                                        <option value="{{ categoria.id }}" 
+                                            {% if categoria.id == zapatilla.categoria.id %}selected{% endif %}>
+                                            {{ categoria.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="precio" class="form-label">Precio $ <span class="text-danger">*</span></label>
+                                <input 
+                                    type="number" 
+                                    class="form-control" 
+                                    id="precio" 
+                                    name="precio" 
+                                    value="{{ zapatilla.precio }}"
+                                    step="0.01"
+                                    min="0"
+                                    required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="stock" class="form-label">Stock <span class="text-danger">*</span></label>
+                                <input 
+                                    type="number" 
+                                    class="form-control" 
+                                    id="stock" 
+                                    name="stock" 
+                                    value="{{ zapatilla.stock }}"
+                                    min="0"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" role="alert">
+                            <strong>Información actual:</strong>
+                            <p class="mb-0">
+                                Esta zapatilla está disponible en el catálogo desde el momento de su creación.
+                            </p>
+                        </div>
+
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-info btn-lg">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <a href="{{ path('app_vendedor_panel') }}" class="btn btn-outline-secondary">
+                                Volver al Panel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('editarZapatillaForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
+    try {
+        const response = await fetch('{{ path("app_zapatilla_actualizar", {'id': zapatilla.id}) }}', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Mostrar mensaje de éxito
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>¡Éxito!</strong> ${data.mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            e.target.parentElement.insertBefore(alertDiv, e.target);
+
+            // Recargar la página después de 2 segundos
+            setTimeout(() => window.location.href = '{{ path("app_vendedor_panel") }}', 2000);
+        } else {
+            // Mostrar error
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Error:</strong> ${data.error}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            e.target.parentElement.insertBefore(alertDiv, e.target);
+        }
+    } catch (error) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            <strong>Error:</strong> ${error.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        e.target.parentElement.insertBefore(alertDiv, e.target);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+    }
+});
+</script>
+{% endblock %}

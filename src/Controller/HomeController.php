@@ -1,0 +1,68 @@
+<?php
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+
+class HomeController extends AbstractController
+{
+    #[Route('/', name: 'app_home', methods: ['GET'])]
+    public function index(): Response
+    {
+        return $this->render('home/index.html.twig');
+    }
+
+    #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
+    public function dashboard(): Response
+    {
+        $usuario = $this->getUser();
+        
+        if (!$usuario) {
+            return $this->redirectToRoute('app_auth_login');
+        }
+
+        return $this->render('home/dashboard.html.twig', [
+            'usuario' => $usuario
+        ]);
+    }
+
+    #[Route('/zapatillas', name: 'app_zapatillas_list', methods: ['GET'])]
+    public function zapatillas(): Response
+    {
+        return $this->render('zapatillas/index.html.twig');
+    }
+
+    #[Route('/carrito', name: 'app_carrito', methods: ['GET'])]
+    public function carrito(): Response
+    {
+        return $this->render('carrito/index.html.twig');
+    }
+
+    #[Route('/checkout', name: 'app_checkout', methods: ['GET'])]
+    public function checkout(): Response
+    {
+        $usuario = $this->getUser();
+        
+        if (!$usuario) {
+            return $this->redirectToRoute('app_auth_login');
+        }
+
+        return $this->render('checkout/index.html.twig');
+    }
+
+    #[Route('/perfil', name: 'app_perfil', methods: ['GET'])]
+    public function perfil(): Response
+    {
+        $usuario = $this->getUser();
+        
+        if (!$usuario) {
+            return $this->redirectToRoute('app_auth_login');
+        }
+
+        return $this->render('usuario/perfil.html.twig', [
+            'usuario' => $usuario
+        ]);
+    }
+}

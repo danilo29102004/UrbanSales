@@ -1,0 +1,475 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Mi Carrito - UrbanSole{% endblock %}
+
+{% block body %}
+<style>
+    main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .carrito-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .cart-items {
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 25px;
+    }
+
+    .cart-header {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 15px;
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 120px 1fr 80px 80px 40px;
+        gap: 20px;
+        align-items: center;
+        padding: 20px;
+        border: 1px solid #f0f0f0;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        background-color: #fafafa;
+        transition: all 0.3s;
+    }
+
+    .cart-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .item-image {
+        background-color: #f5f5f5;
+        height: 120px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+    }
+
+    .item-info h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .item-info .brand {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .item-info .seller {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 5px;
+    }
+
+    .item-info .size {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .item-quantity {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .qty-btn {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .qty-btn:hover {
+        background-color: #e0e0e0;
+    }
+
+    .qty-display {
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .item-price {
+        text-align: right;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #999;
+        cursor: pointer;
+        font-size: 18px;
+        padding: 0;
+        transition: color 0.2s;
+    }
+
+    .remove-btn:hover {
+        color: #d32f2f;
+    }
+
+    .cart-summary {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 25px;
+        height: fit-content;
+        border: 1px solid #f0f0f0;
+        position: sticky;
+        top: 20px;
+    }
+
+    .summary-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .summary-row span:last-child {
+        text-align: right;
+    }
+
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid #ddd;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 14px;
+        background-color: #000;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: all 0.3s;
+    }
+
+    .btn-checkout:hover {
+        background-color: #333;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .btn-continue {
+        width: 100%;
+        padding: 12px;
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    .btn-continue:hover {
+        background-color: #f5f5f5;
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 80px 20px;
+        grid-column: 1/-1;
+    }
+
+    .empty-cart p {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    .shipping-info {
+        background-color: #e3f2fd;
+        border: 1px solid #2196f3;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 13px;
+        margin-top: 15px;
+        color: #0d47a1;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+    }
+
+    .error-msg {
+        background-color: #ffebee;
+        border: 1px solid #ef5350;
+        color: #c62828;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .carrito-container {
+            grid-template-columns: 1fr;
+        }
+
+        .cart-item {
+            grid-template-columns: 100px 1fr;
+        }
+
+        .item-quantity,
+        .item-price,
+        .remove-btn {
+            grid-column: 2;
+        }
+
+        .cart-summary {
+            position: relative;
+            top: 0;
+        }
+    }
+</style>
+
+<main>
+    <h1 style="margin-bottom: 30px; font-size: 32px; font-weight: bold;">🛒 Mi Carrito de Compras</h1>
+
+    <div class="carrito-container">
+        <div class="cart-items">
+            <div class="cart-header">Artículos en tu carrito</div>
+            <div id="cartContent">
+                <div class="loading">Cargando carrito...</div>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-title">Resumen del Pedido</div>
+
+            <div class="summary-row">
+                <span>Subtotal (<span id="itemCount">0</span> items):</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+
+            <div class="summary-row">
+                <span>Envío:</span>
+                <span id="shipping">$0.00</span>
+            </div>
+
+            <div class="summary-row" id="discountRow" style="display: none;">
+                <span>Descuento:</span>
+                <span id="discount" style="color: #4caf50;">-$0.00</span>
+            </div>
+
+            <div class="summary-total">
+                <span>Total:</span>
+                <span id="total">$0.00</span>
+            </div>
+
+            <div class="shipping-info">
+                ✈️ Envío gratis a nivel nacional para compras mayores a $100
+            </div>
+
+            <button class="btn-checkout" id="checkoutBtn" onclick="irAlCheckout()">💳 Proceder al Pago</button>
+            <a href="/zapatillas" class="btn-continue">← Continuar Comprando</a>
+        </div>
+    </div>
+</main>
+
+<script>
+let cart = [];
+
+async function cargarCarrito() {
+    try {
+        const response = await fetch('/api/carrito', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+
+        if (response.status === 401) {
+            document.getElementById('cartContent').innerHTML = `
+                <div class="empty-cart">
+                    <p>Debes iniciar sesión para ver tu carrito</p>
+                    <a href="/auth/login" class="btn-checkout" style="display: inline-block; width: auto; margin-top: 0;">Iniciar Sesión</a>
+                </div>
+            `;
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!data.detalles || data.detalles.length === 0) {
+            document.getElementById('cartContent').innerHTML = `
+                <div class="empty-cart">
+                    <p>Tu carrito está vacío 🛒</p>
+                    <a href="/zapatillas" class="btn-checkout" style="display: inline-block; width: auto; margin-top: 0; background-color: #000;">Explorar Zapatillas</a>
+                </div>
+            `;
+            document.getElementById('checkoutBtn').disabled = true;
+            document.getElementById('checkoutBtn').style.opacity = '0.5';
+            return;
+        }
+
+        cart = data.detalles;
+        mostrarCarrito(data);
+
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('cartContent').innerHTML = `
+            <div class="error-msg">
+                Error al cargar el carrito. Por favor, recarga la página.
+            </div>
+        `;
+    }
+}
+
+function mostrarCarrito(data) {
+    const container = document.getElementById('cartContent');
+    
+    const html = cart.map(item => `
+        <div class="cart-item" data-detalle-id="${item.id}">
+            <div class="item-image">👟</div>
+            <div class="item-info">
+                <div class="brand">${item.zapatilla.marca}</div>
+                <h3>${item.zapatilla.modelo}</h3>
+                <div class="seller">Vendedor: ${item.zapatilla.vendedor || 'UrbanSole'}</div>
+                <div class="size">Talla: ${item.zapatilla.talla}</div>
+            </div>
+            <div class="item-quantity">
+                <button class="qty-btn" onclick="cambiarCantidad(${item.id}, -1)">−</button>
+                <div class="qty-display">${item.cantidad}</div>
+                <button class="qty-btn" onclick="cambiarCantidad(${item.id}, 1)">+</button>
+            </div>
+            <div class="item-price">
+                $${(item.zapatilla.precio * item.cantidad).toFixed(2)}
+                <div style="font-size: 12px; color: #999; font-weight: normal; margin-top: 5px;">
+                    $${item.zapatilla.precio.toFixed(2)} c/u
+                </div>
+            </div>
+            <button class="remove-btn" onclick="eliminarItem(${item.id})">✕</button>
+        </div>
+    `).join('');
+
+    container.innerHTML = html;
+    actualizarResumen(data);
+}
+
+async function cambiarCantidad(detalleId, cambio) {
+    const item = cart.find(i => i.id === detalleId);
+    if (!item) return;
+
+    const nuevaCantidad = item.cantidad + cambio;
+    if (nuevaCantidad <= 0) {
+        eliminarItem(detalleId);
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/carrito/actualizar/${detalleId}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ cantidad: nuevaCantidad })
+        });
+
+        if (response.ok) {
+            item.cantidad = nuevaCantidad;
+            cargarCarrito();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function eliminarItem(detalleId) {
+    try {
+        const response = await fetch(`/api/carrito/eliminar/${detalleId}`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+            }
+        });
+
+        if (response.ok) {
+            cargarCarrito();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+function actualizarResumen(data) {
+    const subtotal = parseFloat(data.total);
+    const shipping = subtotal > 100 ? 0 : 10;
+    const taxes = subtotal * 0.08;
+    const total = subtotal + shipping + taxes;
+
+    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+    document.getElementById('shipping').textContent = `$${shipping.toFixed(2)}`;
+    document.getElementById('taxes').textContent = `$${taxes.toFixed(2)}`;
+    document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    document.getElementById('itemCount').textContent = data.cantidad_items;
+
+    if (shipping === 0 && subtotal > 0) {
+        document.getElementById('discountRow').style.display = 'flex';
+        document.getElementById('discount').textContent = `-$10.00`;
+    }
+}
+
+function irAlCheckout() {
+    if (cart.length === 0) {
+        alert('Tu carrito está vacío');
+        return;
+    }
+    window.location.href = '/checkout';
+}
+
+// Cargar carrito al abrir la página
+cargarCarrito();
+</script>
+{% endblock %}

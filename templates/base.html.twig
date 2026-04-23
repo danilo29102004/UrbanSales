@@ -1,24 +1,497 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}UrbanSole - Verified Authenticity{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #fcf9f8;
+            color: #1c1b1b;
+            font-weight: 400;
+        }
 
-        {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphpHotReload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
-    </head>
-    <body>
+        /* TICKER BAR */
+        .ticker-bar {
+            background: #000;
+            color: #fff;
+            padding: 8px 24px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            overflow: hidden;
+            border-bottom: 1px solid #333;
+            letter-spacing: 0.05em;
+        }
+
+        .ticker-content {
+            display: flex;
+            gap: 48px;
+            animation: scroll 45s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .ticker-item .ticker-name {
+            color: #999;
+            font-weight: 600;
+        }
+
+        .ticker-item .ticker-change {
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .ticker-item .ticker-change.up {
+            color: #00ff00;
+        }
+
+        .ticker-item .ticker-change.down {
+            color: #ff4444;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* HEADER */
+        header {
+            background: #fff;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 16px 24px;
+        }
+
+        .header-wrapper {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 900;
+            color: #000;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+            letter-spacing: -0.02em;
+            font-style: italic;
+            text-transform: uppercase;
+            font-family: 'Spline Sans', sans-serif;
+            tracking-tighter: true;
+        }
+
+        nav {
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            nav {
+                display: flex;
+                list-style: none;
+            }
+
+            nav ul {
+                display: flex;
+                list-style: none;
+                gap: 32px;
+            }
+
+            nav a {
+                text-decoration: none;
+                color: #666;
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                transition: color 0.2s;
+                position: relative;
+                font-family: 'Spline Sans', sans-serif;
+                padding-bottom: 8px;
+            }
+
+            nav a:hover {
+                color: #00ff00;
+            }
+
+            nav a.active {
+                color: #000;
+                border-bottom: 2px solid #000;
+                padding-bottom: 6px;
+            }
+        }
+
+        .header-center {
+            flex: 1;
+            max-width: 320px;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header-center {
+                display: block;
+            }
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border: 1px solid #e5e5e5;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #000;
+            background: #fff;
+        }
+
+        .search-box::placeholder {
+            color: #999;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-shrink: 0;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            font-size: 20px;
+            color: #000;
+            transition: color 0.2s;
+            padding: 0;
+        }
+
+        .icon-button:hover {
+            color: #00ff00;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -12px;
+            background: #00ff00;
+            color: #000;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        .login-button {
+            background: #fff;
+            border: 1px solid #000;
+            color: #000;
+            padding: 8px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .login-button {
+                display: block;
+            }
+        }
+
+        .login-button:hover {
+            background: #000;
+            color: #fff;
+        }
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-login {
+            padding: 8px 16px;
+            background: transparent;
+            color: #000;
+            border: 1px solid #000;
+            border-radius: 0;
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .btn-login:hover {
+            background: #000;
+            color: white;
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        footer {
+            background: #000;
+            margin-top: 80px;
+            border-top: 1px solid #222;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 40px;
+        }
+
+        .footer-section h4 {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #00ff00;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section a {
+            color: #999;
+            font-size: 12px;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #222;
+            padding-top: 20px;
+            margin-top: 20px;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .header-top {
+                gap: 10px;
+            }
+
+            nav ul {
+                display: none;
+            }
+
+            .search-container {
+                flex: 0.5;
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+    {% block javascripts %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+</head>
+<body>
+    <!-- TICKER BAR -->
+    <div class="ticker-bar">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-name">JORDAN 1 RETRO LOW</span>
+                <span class="ticker-price">+$120.00</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-name">ADIDAS YEEZY BOOST</span>
+                <span class="ticker-price">+$12.00</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-name">NIKE DUNK LOW</span>
+                <span class="ticker-price ticker-change down">-$5.50</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-name">NEW BALANCE 2026R</span>
+                <span class="ticker-price">-$8.40</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-name">AMIRI CEL-KARANG</span>
+                <span class="ticker-price">+$9.00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-wrapper">
+            <div class="header-left">
+                <a href="/" class="logo">URBAN SOLE</a>
+
+                <nav>
+                    <ul>
+                        <li><a href="/zapatillas?type=drops" class="active">DROPS</a></li>
+                        <li><a href="/zapatillas">MARKET</a></li>
+                        {% if app.user %}
+                            <li><a href="/vendedor/solicitar">SELL</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="header-center">
+                <input type="text" class="search-box" placeholder="Search for brand, colorway, etc..." id="searchInput">
+            </div>
+
+            <div class="header-right">
+                <div class="header-icons">
+                    <button class="icon-button" onclick="window.location.href='/carrito'" title="Shopping cart">
+                        🛒
+                        <span class="cart-badge" id="cartCount">0</span>
+                    </button>
+                    <button class="icon-button" onclick="window.location.href='/perfil'" title="Profile">
+                        👤
+                    </button>
+                </div>
+
+                {% if app.user %}
+                    <a href="{{ path('app_auth_logout') }}" class="login-button">Sign Out</a>
+                {% else %}
+                    <a href="{{ path('app_auth_login') }}" class="login-button">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <main>
         {% block body %}{% endblock %}
-    </body>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>TERMS</h4>
+                <ul>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookies</a></li>
+                    <li><a href="#">Accessibility</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>PRIVACY</h4>
+                <ul>
+                    <li><a href="#">Data Protection</a></li>
+                    <li><a href="#">Your Privacy Rights</a></li>
+                    <li><a href="#">Opt-out</a></li>
+                    <li><a href="#">Cookie Settings</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>ACCESSIBILITY</h4>
+                <ul>
+                    <li><a href="#">Accessibility Help</a></li>
+                    <li><a href="#">Accessibility Policy</a></li>
+                    <li><a href="#">Accessibility Statement</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>HELP</h4>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Support Center</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">System Status</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>MARKET DATA</h4>
+                <ul>
+                    <li><a href="#">Latest Prices</a></li>
+                    <li><a href="#">Price Trends</a></li>
+                    <li><a href="#">Market Analysis</a></li>
+                    <li><a href="#">Forecasts</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <strong>© 2024 URBAN SOLE. VERIFIED AUTHENTICITY.</strong>
+        </div>
+    </footer>
+
+    <script>
+        async function actualizarCarrito() {
+            try {
+                const res = await fetch('/api/carrito');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('cartCount').textContent = data.cantidad_items || 0;
+                }
+            } catch (e) {}
+        }
+        actualizarCarrito();
+    </script>
+</body>
 </html>

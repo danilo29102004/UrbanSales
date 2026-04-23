@@ -1,0 +1,581 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Market Catalog - UrbanSole{% endblock %}
+
+{% block body %}
+<style>
+    .catalog-container {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 40px;
+        margin-bottom: 60px;
+    }
+
+    .filters-sidebar {
+        background: white;
+        padding: 0;
+        border-radius: 0;
+        height: fit-content;
+    }
+
+    .filter-section {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .filter-section:last-child {
+        border-bottom: none;
+    }
+
+    .filter-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        color: #000;
+    }
+
+    .filter-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-option input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: #00ff00;
+    }
+
+    .filter-option label {
+        margin: 0;
+        cursor: pointer;
+        font-size: 13px;
+        color: #666;
+        flex: 1;
+    }
+
+    .price-range {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .price-range input {
+        padding: 6px;
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        font-size: 12px;
+    }
+
+    .price-range button {
+        grid-column: 1/-1;
+        padding: 8px;
+        background: #000;
+        color: white;
+        border: none;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        cursor: pointer;
+        margin-top: 8px;
+    }
+
+    .catalog-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .catalog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .catalog-title {
+        font-size: 24px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -0.5px;
+    }
+
+    .catalog-subtitle {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .sort-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .sort-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #666;
+    }
+
+    .sort-select {
+        padding: 8px 12px;
+        border: 1px solid #e5e5e5;
+        background: white;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 60px;
+    }
+
+    .product-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        overflow: hidden;
+        text-decoration: none;
+        color: #000;
+        transition: all 0.2s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-card:hover {
+        border-color: #000;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .product-badge {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: #00ff00;
+        color: #000;
+        padding: 4px 8px;
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 2;
+    }
+
+    .product-image {
+        background: #f5f5f5;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 80px;
+        position: relative;
+    }
+
+    .product-info {
+        padding: 16px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-category {
+        font-size: 10px;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .product-name {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.4;
+        margin-bottom: 8px;
+        flex-grow: 1;
+    }
+
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .product-price {
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .product-buy {
+        background: #000;
+        color: white;
+        padding: 8px 12px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .product-buy:hover {
+        background: #333;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin: 60px 0;
+    }
+
+    .pagination a,
+    .pagination span {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #e5e5e5;
+        text-decoration: none;
+        color: #000;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .pagination a:hover {
+        border-color: #000;
+    }
+
+    .pagination span.current {
+        background: #000;
+        color: white;
+        border-color: #000;
+    }
+
+    .pagination span.dots {
+        border: none;
+    }
+
+    .empty-state {
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    @media (max-width: 1024px) {
+        .catalog-container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .filters-sidebar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 0;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .catalog-container {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-sidebar {
+            display: none;
+        }
+
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .catalog-title {
+            font-size: 18px;
+        }
+    }
+</style>
+
+<div class="catalog-container">
+    <!-- FILTERS SIDEBAR -->
+    <div class="filters-sidebar">
+        <div class="filter-section">
+            <div class="filter-title">BRAND</div>
+            <div class="filter-options">
+                <div class="filter-option">
+                    <input type="checkbox" id="brand-nike" class="brand-filter">
+                    <label for="brand-nike">Nike</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand-jordan" class="brand-filter">
+                    <label for="brand-jordan">Jordan</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand-adidas" class="brand-filter">
+                    <label for="brand-adidas">Adidas</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="brand-newbalance" class="brand-filter">
+                    <label for="brand-newbalance">New Balance</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">PRICE RANGE</div>
+            <div class="price-range">
+                <input type="number" id="price-min" placeholder="$0" min="0">
+                <input type="number" id="price-max" placeholder="$500+" min="0">
+            </div>
+            <button onclick="applyPriceFilter()">APPLY</button>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">SIZE (US)</div>
+            <div class="filter-options">
+                <div class="filter-option">
+                    <input type="checkbox" value="7" class="size-filter">
+                    <label>7</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" value="8" class="size-filter">
+                    <label>8</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" value="9" class="size-filter">
+                    <label>9</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" value="10" class="size-filter">
+                    <label>10</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">CATEGORY</div>
+            <div class="filter-options">
+                <div class="filter-option">
+                    <input type="checkbox" class="category-filter" value="Basketball">
+                    <label>Basketball</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" class="category-filter" value="Lifestyle">
+                    <label>Lifestyle</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" class="category-filter" value="Running">
+                    <label>Running</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATALOG CONTENT -->
+    <div class="catalog-content">
+        <div class="catalog-header">
+            <div>
+                <h1 class="catalog-title">MARKET CATALOG</h1>
+                <p class="catalog-subtitle">Browse 12,402 verified authentic sneakers</p>
+            </div>
+            <div class="sort-container">
+                <label class="sort-label">SORT BY:</label>
+                <select class="sort-select" id="sortSelect">
+                    <option value="popularity">POPULARITY</option>
+                    <option value="latest">LATEST</option>
+                    <option value="price-low">PRICE: LOW TO HIGH</option>
+                    <option value="price-high">PRICE: HIGH TO LOW</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="product-grid" id="productGrid">
+            <div class="empty-state">
+                <p>Cargando productos...</p>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <span class="current">1</span>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <span class="dots">...</span>
+            <a href="#">45</a>
+            <a href="#">→</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allProducts = [];
+
+    // Función para obtener URL de imagen
+    function getImageUrl(brand, model) {
+        const brandLower = (brand || '').toLowerCase();
+        const modelLower = (model || '').toLowerCase();
+        
+        const images = {
+            'jordan': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop',
+            'nike': 'https://images.unsplash.com/photo-1460353581641-694ee11ff7f5?w=500&h=500&fit=crop',
+            'adidas': 'https://images.unsplash.com/photo-1556821552-5d6deb0c1819?w=500&h=500&fit=crop',
+            'new balance': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop',
+            'puma': 'https://images.unsplash.com/photo-1460353581641-694ee11ff7f5?w=500&h=500&fit=crop',
+            'vans': 'https://images.unsplash.com/photo-1576209262819-45e6c88955ba?w=500&h=500&fit=crop',
+            'converse': 'https://images.unsplash.com/photo-1576209262819-45e6c88955ba?w=500&h=500&fit=crop',
+            'asics': 'https://images.unsplash.com/photo-1556821552-5d6deb0c1819?w=500&h=500&fit=crop',
+            'hoka': 'https://images.unsplash.com/photo-1460353581641-694ee11ff7f5?w=500&h=500&fit=crop',
+            'balenciaga': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop',
+            'louis vuitton': 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop',
+        };
+        
+        for (let key in images) {
+            if (brandLower.includes(key) || modelLower.includes(key)) {
+                return images[key];
+            }
+        }
+        
+        return 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop';
+    }
+
+    async function loadProducts() {
+        try {
+            const response = await fetch('/api/zapatillas?limit=30');
+            const data = await response.json();
+            
+            if (data.zapatillas && data.zapatillas.length > 0) {
+                allProducts = data.zapatillas;
+                renderProducts(allProducts);
+            } else {
+                document.getElementById('productGrid').innerHTML = '<div class="empty-state"><p>No hay productos disponibles</p></div>';
+            }
+        } catch (error) {
+            console.error('Error loading products:', error);
+            document.getElementById('productGrid').innerHTML = '<div class="empty-state"><p>Error al cargar productos</p></div>';
+        }
+    }
+
+    function renderProducts(products) {
+        const grid = document.getElementById('productGrid');
+        
+        if (products.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><p>No hay productos que coincidan con los filtros</p></div>';
+            return;
+        }
+
+        grid.innerHTML = products.slice(0, 9).map(product => `
+            <a href="/zapatillas/${product.id}" class="product-card">
+                <div class="product-badge">VERIFIED</div>
+                <div class="product-image"><img src="${getImageUrl(product.marca, product.modelo)}" alt="${product.modelo}" style="width:100%; height:100%; object-fit:cover;"></div>
+                <div class="product-info">
+                    <div class="product-category">${product.marca || 'NIKE'}</div>
+                    <div class="product-name">${product.modelo || 'Sneaker'}</div>
+                    <div style="font-size: 11px; color: #999; margin-bottom: 8px;">Last sale: ${product.ultima_venta || '8 days ago'}</div>
+                    <div class="product-footer">
+                        <div class="product-price">$${product.precio || '0'}</div>
+                        <button class="product-buy" onclick="agregarCarrito(event, ${product.id})">BUY</button>
+                    </div>
+                </div>
+            </a>
+        `).join('');
+    }
+
+    function applyPriceFilter() {
+        const minPrice = parseFloat(document.getElementById('price-min').value) || 0;
+        const maxPrice = parseFloat(document.getElementById('price-max').value) || Infinity;
+        
+        const filtered = allProducts.filter(p => p.precio >= minPrice && p.precio <= maxPrice);
+        renderProducts(filtered);
+    }
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        const sort = e.target.value;
+        let sorted = [...allProducts];
+        
+        if (sort === 'price-low') {
+            sorted.sort((a, b) => a.precio - b.precio);
+        } else if (sort === 'price-high') {
+            sorted.sort((a, b) => b.precio - a.precio);
+        } else if (sort === 'latest') {
+            sorted.reverse();
+        }
+        
+        renderProducts(sorted);
+    });
+
+    async function agregarCarrito(event, zapatillaId) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (!{{ app.user ? 'true' : 'false' }}) {
+            window.location.href = '{{ path("app_auth_login") }}';
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/carrito/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    zapatilla_id: zapatillaId,
+                    cantidad: 1
+                })
+            });
+
+            if (response.ok) {
+                actualizarCarrito();
+                alert('✅ Added to cart');
+            } else {
+                const error = await response.json();
+                alert('Error: ' + (error.error || 'Could not add to cart'));
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error adding to cart');
+        }
+    }
+
+    async function actualizarCarrito() {
+        try {
+            const res = await fetch('/api/carrito');
+            if (res.ok) {
+                const data = await res.json();
+                document.getElementById('cartCount').textContent = data.cantidad_items || 0;
+            }
+        } catch (e) {}
+    }
+
+    // Load products on page load
+    loadProducts();
+</script>
+
+{% endblock %}

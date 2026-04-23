@@ -1,0 +1,151 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Panel de Vendedor - UrbanSole{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Panel de Vendedor</h1>
+            <p class="text-muted">Bienvenido, {{ app.user.nombre }}!</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if vendedor.estado == 'APROBADO' %}
+                <a href="{{ path('app_zapatilla_crear_formulario') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus"></i> Subir Nueva Zapatilla
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Estado del Vendedor -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Información de Vendedor</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Estado:</strong> 
+                                <span class="badge 
+                                    {% if vendedor.estado == 'APROBADO' %}bg-success
+                                    {% elseif vendedor.estado == 'RECHAZADO' %}bg-danger
+                                    {% else %}bg-warning{% endif %}">
+                                    {{ vendedor.estado }}
+                                </span>
+                            </p>
+                            <p><strong>DNI:</strong> {{ vendedor.dni }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Fecha de Solicitud:</strong> {{ vendedor.fechaSolicitud.format('d/m/Y H:i') }}</p>
+                            {% if vendedor.fechaAprobacion %}
+                                <p><strong>Fecha de Aprobación:</strong> {{ vendedor.fechaAprobacion.format('d/m/Y H:i') }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zapatillas del Vendedor -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Mis Zapatillas ({{ zapatillas|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if zapatillas|length > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Modelo</th>
+                                        <th>Marca</th>
+                                        <th>Talla</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Categoría</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for zapatilla in zapatillas %}
+                                        <tr>
+                                            <td>{{ zapatilla.modelo }}</td>
+                                            <td>{{ zapatilla.marca }}</td>
+                                            <td>{{ zapatilla.talla }}</td>
+                                            <td>${{ zapatilla.precio }}</td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if zapatilla.stock > 10 %}bg-success
+                                                    {% elseif zapatilla.stock > 0 %}bg-warning
+                                                    {% else %}bg-danger{% endif %}">
+                                                    {{ zapatilla.stock }}
+                                                </span>
+                                            </td>
+                                            <td>{{ zapatilla.categoria.nombre }}</td>
+                                            <td>
+                                                <a href="{{ path('app_zapatilla_editar_formulario', {'id': zapatilla.id}) }}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i> Editar
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        onclick="eliminarZapatilla({{ zapatilla.id }})">
+                                                    <i class="fas fa-trash"></i> Eliminar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">
+                            <p class="mb-0">
+                                Aún no tienes zapatillas. 
+                                {% if vendedor.estado == 'APROBADO' %}
+                                    <a href="{{ path('app_zapatilla_crear_formulario') }}">¡Sube tu primera zapatilla!</a>
+                                {% else %}
+                                    Tu solicitud de vendedor debe ser aprobada antes de poder subir zapatillas.
+                                {% endif %}
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function eliminarZapatilla(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar esta zapatilla?')) {
+        fetch(`/zapatillas/${id}/eliminar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.mensaje) {
+                alert('Zapatilla eliminada exitosamente');
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar la zapatilla');
+        });
+    }
+}
+</script>
+{% endblock %}
