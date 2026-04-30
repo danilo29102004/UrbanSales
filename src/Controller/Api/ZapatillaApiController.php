@@ -33,6 +33,7 @@ class ZapatillaApiController extends AbstractController
                     'categoria' => $zapatilla->getCategoria()?->getNombre(),
                     'vendedor' => $zapatilla->getVendedor()?->getNombre(),
                     'vendedor_id' => $zapatilla->getVendedor()?->getId(),
+                    'imagen' => $zapatilla->getImagen(),
                 ];
             }
 
@@ -63,6 +64,7 @@ class ZapatillaApiController extends AbstractController
                     'categoria' => $zapatilla->getCategoria()?->getNombre(),
                     'vendedor' => $zapatilla->getVendedor()?->getNombre(),
                     'vendedor_id' => $zapatilla->getVendedor()?->getId(),
+                    'imagen' => $zapatilla->getImagen(),
                 ]
             ]);
 

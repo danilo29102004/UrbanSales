@@ -1,0 +1,132 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Subir Nueva Zapatilla - UrbanSole{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
+    <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 30px;">Subir Nueva Zapatilla</h1>
+
+    {% if app.flashes %}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                {% set bgColor = (type == 'success') ? '#d4edda' : ((type == 'error') ? '#f8d7da' : '#d1ecf1') %}
+                {% set textColor = (type == 'success') ? '#155724' : ((type == 'error') ? '#721c24' : '#0c5460') %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; background: {{ bgColor }}; color: {{ textColor }};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data" style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        
+        <!-- Modelo -->
+        <div style="margin-bottom: 24px;">
+            <label for="modelo" style="display: block; margin-bottom: 8px; font-weight: 600;">Modelo</label>
+            <input type="text" id="modelo" name="modelo" placeholder="Ej: Jordan 1 Retro High" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <!-- Marca -->
+        <div style="margin-bottom: 24px;">
+            <label for="marca" style="display: block; margin-bottom: 8px; font-weight: 600;">Marca</label>
+            <input type="text" id="marca" name="marca" placeholder="Ej: Air Jordan" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <!-- Talla y Precio -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div>
+                <label for="talla" style="display: block; margin-bottom: 8px; font-weight: 600;">Talla</label>
+                <input type="number" id="talla" name="talla" placeholder="Ej: 10" step="0.5" min="0" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            </div>
+            <div>
+                <label for="precio" style="display: block; margin-bottom: 8px; font-weight: 600;">Precio (€)</label>
+                <input type="number" id="precio" name="precio" placeholder="Ej: 150.00" step="0.01" min="0" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            </div>
+        </div>
+
+        <!-- Stock y Categoría -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+            <div>
+                <label for="stock" style="display: block; margin-bottom: 8px; font-weight: 600;">Stock</label>
+                <input type="number" id="stock" name="stock" placeholder="Ej: 10" min="0" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            </div>
+            <div>
+                <label for="categoria_id" style="display: block; margin-bottom: 8px; font-weight: 600;">Categoría</label>
+                <select id="categoria_id" name="categoria_id" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+                    <option value="">Selecciona una categoría</option>
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Imagen -->
+        <div style="margin-bottom: 24px;">
+            <label for="imagen" style="display: block; margin-bottom: 8px; font-weight: 600;">Foto de la Zapatilla</label>
+            <div style="border: 2px dashed #ddd; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.3s;" id="dropZone">
+                <svg style="width: 48px; height: 48px; margin: 0 auto 12px; color: #999;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p style="color: #666; margin-bottom: 8px;">Arrastra tu imagen aquí o haz clic</p>
+                <p style="color: #999; font-size: 0.9rem;">JPG, PNG, GIF o WebP (máximo 5MB)</p>
+                <input type="file" id="imagen" name="imagen" accept="image/*" style="display: none;">
+            </div>
+            <p id="fileName" style="margin-top: 8px; color: #666; font-size: 0.9rem;"></p>
+        </div>
+
+        <!-- Botones -->
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <a href="{{ path('app_vendedor_zapatillas_listar') }}" style="padding: 12px 24px; background: #e9e9e9; color: #000; border-radius: 4px; text-decoration: none; font-weight: 600; cursor: pointer;">Cancelar</a>
+            <button type="submit" style="padding: 12px 24px; background: #000; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1rem;">Subir Zapatilla</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('imagen');
+    const fileName = document.getElementById('fileName');
+
+    // Click en la zona
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#000';
+        dropZone.style.backgroundColor = '#f9f9f9';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '#ddd';
+        dropZone.style.backgroundColor = 'transparent';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '#ddd';
+        dropZone.style.backgroundColor = 'transparent';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileName();
+        }
+    });
+
+    // Cambio de archivo
+    fileInput.addEventListener('change', updateFileName);
+
+    function updateFileName() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const size = (file.size / 1024 / 1024).toFixed(2);
+            fileName.textContent = `✓ ${file.name} (${size}MB)`;
+            fileName.style.color = '#28a745';
+        } else {
+            fileName.textContent = '';
+        }
+    }
+</script>
+{% endblock %}

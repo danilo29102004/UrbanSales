@@ -1,0 +1,76 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Mis Zapatillas - UrbanSole{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h1 style="font-size: 2.5rem; font-weight: 700;">Mis Zapatillas</h1>
+        <a href="{{ path('app_vendedor_zapatillas_crear') }}" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: 600;">+ Subir Nueva Zapatilla</a>
+    </div>
+
+    {% if app.flashes %}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                {% set bgColor = (type == 'success') ? '#d4edda' : ((type == 'error') ? '#f8d7da' : '#d1ecf1') %}
+                {% set textColor = (type == 'success') ? '#155724' : ((type == 'error') ? '#721c24' : '#0c5460') %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; background: {{ bgColor }}; color: {{ textColor }};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    {% if zapatillas|length == 0 %}
+        <div style="text-align: center; padding: 60px 20px; background: #f9f9f9; border-radius: 8px;">
+            <p style="font-size: 1.1rem; color: #666; margin-bottom: 20px;">Aún no has subido ninguna zapatilla</p>
+            <a href="{{ path('app_vendedor_zapatillas_crear') }}" style="display: inline-block; background: #000; color: #fff; padding: 12px 24px; border-radius: 4px; text-decoration: none; font-weight: 600;">Subir tu primera zapatilla</a>
+        </div>
+    {% else %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+            {% for zapatilla in zapatillas %}
+                <div style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s;">
+                    {% if zapatilla.imagen %}
+                        <img src="{{ zapatilla.imagen }}" alt="{{ zapatilla.modelo }}" style="width: 100%; height: 250px; object-fit: cover; display: block;">
+                    {% else %}
+                        <div style="width: 100%; height: 250px; background: #e9e9e9; display: flex; align-items: center; justify-content: center; color: #999;">
+                            Sin imagen
+                        </div>
+                    {% endif %}
+
+                    <div style="padding: 16px;">
+                        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #000;">{{ zapatilla.modelo }}</h3>
+                        <p style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">{{ zapatilla.marca }}</p>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; font-size: 0.9rem;">
+                            <div>
+                                <span style="color: #999;">Talla:</span>
+                                <strong style="display: block; color: #000;">{{ zapatilla.talla }}</strong>
+                            </div>
+                            <div>
+                                <span style="color: #999;">Precio:</span>
+                                <strong style="display: block; color: #000;">€{{ zapatilla.precio }}</strong>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eee;">
+                            <span style="color: #999; font-size: 0.9rem;">Stock:</span>
+                            <strong style="display: block; color: #000; font-size: 1.1rem;">{{ zapatilla.stock }} unidades</strong>
+                        </div>
+
+                        <p style="font-size: 0.85rem; color: #999; margin-bottom: 12px;">{{ zapatilla.categoria.nombre }}</p>
+
+                        <div style="display: flex; gap: 8px;">
+                            <a href="{{ path('app_vendedor_zapatillas_editar', { id: zapatilla.id }) }}" style="flex: 1; text-align: center; background: #007bff; color: #fff; padding: 8px 12px; border-radius: 4px; text-decoration: none; font-size: 0.9rem; font-weight: 600;">Editar</a>
+
+                            <form method="POST" action="{{ path('app_vendedor_zapatillas_eliminar', { id: zapatilla.id }) }}" style="flex: 1;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta zapatilla?');">
+                                <button type="submit" style="width: 100%; background: #dc3545; color: #fff; padding: 8px 12px; border: none; border-radius: 4px; font-size: 0.9rem; font-weight: 600; cursor: pointer;">Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

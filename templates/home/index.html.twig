@@ -92,15 +92,16 @@
     }
 
     .hero-image {
-        background: #1a1a1a;
-        height: 400px;
+        background: url('/uploads/hero_yeezy.jpg') center/cover;
+        height: 500px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 4px;
+        border-radius: 8px;
         font-size: 120px;
         position: relative;
         overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
     .hero-image::after {
@@ -110,7 +111,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, rgba(0,255,0,0.1), transparent);
+        background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1));
     }
 
     /* SECTION HEADERS */
@@ -501,7 +502,8 @@
         card.href = `/zapatillas/${shoe.id}`;
         card.className = 'product-card';
         
-        const imageUrl = getImageUrl(shoe.marca, shoe.modelo);
+        // Usar imagen real si existe, sino usar imagen por defecto
+        const imageUrl = shoe.imagen || getImageUrl(shoe.marca, shoe.modelo);
         const badge = shoe.is_new ? '<div class="product-badge">VERIFIED</div>' : '';
         const dateSection = showDate ? `<div class="product-category">OCT 24, 2024</div>` : '';
         
@@ -523,14 +525,15 @@
     }
 
     // Cargar NEW RELEASES
-    fetch('/api/zapatillas?limit=4&sort=latest')
+    fetch('/api/zapatillas')
         .then(res => res.json())
         .then(data => {
             const grid = document.getElementById('new-releases');
             grid.innerHTML = '';
             
             if (data.zapatillas && data.zapatillas.length > 0) {
-                data.zapatillas.forEach(shoe => {
+                // Mostrar solo las primeras 4
+                data.zapatillas.slice(0, 4).forEach(shoe => {
                     grid.appendChild(createProductCard(shoe));
                 });
             } else {
@@ -540,14 +543,15 @@
         .catch(err => console.error('Error loading new releases:', err));
 
     // Cargar MOST POPULAR
-    fetch('/api/zapatillas?limit=4&sort=popular')
+    fetch('/api/zapatillas')
         .then(res => res.json())
         .then(data => {
             const grid = document.getElementById('most-popular');
             grid.innerHTML = '';
             
             if (data.zapatillas && data.zapatillas.length > 0) {
-                data.zapatillas.forEach(shoe => {
+                // Mostrar diferentes 4
+                data.zapatillas.slice(0, 4).forEach(shoe => {
                     grid.appendChild(createProductCard(shoe));
                 });
             }
@@ -555,14 +559,15 @@
         .catch(err => console.error('Error loading popular:', err));
 
     // Cargar UPCOMING DROPS
-    fetch('/api/zapatillas?limit=3&sort=upcoming')
+    fetch('/api/zapatillas')
         .then(res => res.json())
         .then(data => {
             const grid = document.getElementById('upcoming-drops');
             grid.innerHTML = '';
             
             if (data.zapatillas && data.zapatillas.length > 0) {
-                data.zapatillas.forEach(shoe => {
+                // Mostrar solo las primeras 3
+                data.zapatillas.slice(0, 3).forEach(shoe => {
                     grid.appendChild(createProductCard(shoe, true));
                 });
             }

@@ -70,12 +70,11 @@ class ZapatillaController extends AbstractController
                 throw $this->createNotFoundException('Zapatilla no encontrada');
             }
 
-            // Render the product detail template
             return $this->render('zapatillas/show.html.twig', [
                 'zapatilla' => $zapatilla
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw $this->createNotFoundException('Zapatilla no encontrada');
         }
     }

@@ -3,15 +3,63 @@
 {% block title %}Editar Perfil - UrbanSole{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-info text-white">
-                    <h2 class="mb-0">Editar Perfil</h2>
+<div class="container" style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
+    <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 30px;">Editar Perfil</h1>
+
+    {% if app.flashes %}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                {% set bgColor = (type == 'success') ? '#d4edda' : ((type == 'error') ? '#f8d7da' : '#d1ecf1') %}
+                {% set textColor = (type == 'success') ? '#155724' : ((type == 'error') ? '#721c24' : '#0c5460') %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; background: {{ bgColor }}; color: {{ textColor }};">
+                    {{ message }}
                 </div>
-                <div class="card-body">
-                    <form id="editarPerfilForm">
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{{ path('app_mi_perfil_actualizar') }}" style="background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        
+        <!-- Nombre -->
+        <div style="margin-bottom: 24px;">
+            <label for="nombre" style="display: block; margin-bottom: 8px; font-weight: 600;">Nombre Completo</label>
+            <input type="text" id="nombre" name="nombre" value="{{ usuario.nombre }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+        </div>
+
+        <!-- Email -->
+        <div style="margin-bottom: 24px;">
+            <label for="email" style="display: block; margin-bottom: 8px; font-weight: 600;">Email</label>
+            <input type="email" id="email" name="email" value="{{ usuario.email }}" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <small style="color: #999; font-size: 0.9rem; margin-top: 5px; display: block;">Si cambias el email, tendrás que verificarlo</small>
+        </div>
+
+        <div style="padding: 20px; background: #f5f5f5; border-radius: 8px; margin-bottom: 24px; border-left: 4px solid #ffc107;">
+            <h3 style="font-weight: 700; margin-bottom: 15px; margin-top: 0;">Cambiar Contraseña (Opcional)</h3>
+            <p style="color: #666; margin: 0;">Deja estos campos vacíos si no deseas cambiar tu contraseña</p>
+        </div>
+
+        <!-- Contraseña Actual -->
+        <div style="margin-bottom: 24px;">
+            <label for="password_actual" style="display: block; margin-bottom: 8px; font-weight: 600;">Contraseña Actual</label>
+            <input type="password" id="password_actual" name="password_actual" placeholder="Ingresa tu contraseña actual" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <small style="color: #999; font-size: 0.9rem; margin-top: 5px; display: block;">Requerida si quieres cambiar tu contraseña</small>
+        </div>
+
+        <!-- Nueva Contraseña -->
+        <div style="margin-bottom: 24px;">
+            <label for="password_nueva" style="display: block; margin-bottom: 8px; font-weight: 600;">Nueva Contraseña</label>
+            <input type="password" id="password_nueva" name="password_nueva" placeholder="Ingresa tu nueva contraseña" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 1rem;">
+            <small style="color: #999; font-size: 0.9rem; margin-top: 5px; display: block;">Mínimo 6 caracteres</small>
+        </div>
+
+        <!-- Botones -->
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <a href="{{ path('app_mi_perfil') }}" style="padding: 12px 24px; background: #e9e9e9; color: #000; border-radius: 4px; text-decoration: none; font-weight: 600; cursor: pointer;">Cancelar</a>
+            <button type="submit" style="padding: 12px 24px; background: #000; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1rem;">Guardar Cambios</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
                         <!-- Nombre -->
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre Completo <span class="text-danger">*</span></label>
@@ -93,97 +141,6 @@
                                 Cancelar
                             </a>
                         </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    </form>
 </div>
-
-<script>
-document.getElementById('editarPerfilForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const nombre = document.getElementById('nombre').value;
-    const email = document.getElementById('email').value;
-    const passwordActual = document.getElementById('password_actual').value;
-    const passwordNueva = document.getElementById('password_nueva').value;
-    const passwordConfirmar = document.getElementById('password_confirmar').value;
-
-    // Validar
-    if (!nombre || !email) {
-        mostrarAlerta('El nombre y email son obligatorios', 'danger');
-        return;
-    }
-
-    // Validar contraseña
-    if (passwordNueva || passwordActual) {
-        if (!passwordActual) {
-            mostrarAlerta('Debes ingresar tu contraseña actual para cambiarla', 'danger');
-            return;
-        }
-
-        if (passwordNueva.length < 6) {
-            mostrarAlerta('La nueva contraseña debe tener al menos 6 caracteres', 'danger');
-            return;
-        }
-
-        if (passwordNueva !== passwordConfirmar) {
-            mostrarAlerta('Las contraseñas no coinciden', 'danger');
-            return;
-        }
-    }
-
-    const formData = new FormData();
-    formData.append('nombre', nombre);
-    formData.append('email', email);
-    if (passwordActual) formData.append('password_actual', passwordActual);
-    if (passwordNueva) formData.append('password_nueva', passwordNueva);
-
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
-
-    try {
-        const response = await fetch('{{ path("app_mi_perfil_actualizar") }}', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            mostrarAlerta('¡Perfil actualizado exitosamente!', 'success');
-            setTimeout(() => {
-                window.location.href = '{{ path("app_mi_perfil") }}';
-            }, 2000);
-        } else {
-            mostrarAlerta(data.error || 'Error al actualizar el perfil', 'danger');
-        }
-    } catch (error) {
-        mostrarAlerta('Error: ' + error.message, 'danger');
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
-    }
-});
-
-function mostrarAlerta(mensaje, tipo) {
-    const container = document.getElementById('alertContainer');
-    container.innerHTML = `
-        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-            ${mensaje}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    `;
-    container.scrollIntoView({ behavior: 'smooth' });
-}
-
-// Limpiar validación en tiempo real
-document.getElementById('password_nueva').addEventListener('input', function() {
-    if (this.value && !document.getElementById('password_actual').value) {
-        mostrarAlerta('Ingresa tu contraseña actual para cambiar la contraseña', 'warning');
-    }
-});
-</script>
 {% endblock %}

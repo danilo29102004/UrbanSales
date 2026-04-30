@@ -38,6 +38,9 @@ class Zapatilla
     #[ORM\ManyToOne(inversedBy: 'zapatillas')]
     private ?Usuario $vendedor = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagen = null;
+
     /**
      * @var Collection<int, DetallePedido>
      */
@@ -134,6 +137,18 @@ class Zapatilla
     public function setVendedor(?Usuario $vendedor): static
     {
         $this->vendedor = $vendedor;
+
+        return $this;
+    }
+
+    public function getImagen(): ?string
+    {
+        return $this->imagen;
+    }
+
+    public function setImagen(?string $imagen): static
+    {
+        $this->imagen = $imagen;
 
         return $this;
     }

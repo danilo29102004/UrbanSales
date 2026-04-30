@@ -43,7 +43,6 @@ class SeedDataCommand extends Command
             $usuario->setEmail('juan.test@example.com');
             $usuario->setNombre('Juan Test');
             $usuario->setPassword($this->passwordHasher->hashPassword($usuario, 'password123'));
-            $usuario->setRoles(['ROLE_USER']);
             $this->em->persist($usuario);
             $this->em->flush();
         }
