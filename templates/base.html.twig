@@ -360,26 +360,9 @@
 <body>
     <!-- TICKER BAR -->
     <div class="ticker-bar">
-        <div class="ticker-content">
+        <div class="ticker-content" id="tickerContent">
             <div class="ticker-item">
-                <span class="ticker-name">JORDAN 1 RETRO LOW</span>
-                <span class="ticker-price">+$120.00</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-name">ADIDAS YEEZY BOOST</span>
-                <span class="ticker-price">+$12.00</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-name">NIKE DUNK LOW</span>
-                <span class="ticker-price ticker-change down">-$5.50</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-name">NEW BALANCE 2026R</span>
-                <span class="ticker-price">-$8.40</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-name">AMIRI CEL-KARANG</span>
-                <span class="ticker-price">+$9.00</span>
+                <span class="ticker-name">Cargando...</span>
             </div>
         </div>
     </div>
@@ -482,6 +465,42 @@
     </footer>
 
     <script>
+        // Cargar ticker con zapatillas reales
+        async function cargarTicker() {
+            try {
+                const res = await fetch('/api/zapatillas?limit=10&pagina=1');
+                const data = await res.json();
+                
+                if (data.zapatillas && data.zapatillas.length > 0) {
+                    const tickerContent = document.getElementById('tickerContent');
+                    tickerContent.innerHTML = '';
+                    
+                    // Mostrar zapatillas en el ticker (repetidas para efecto de scroll continuo)
+                    const zapatos = data.zapatillas;
+                    for (let i = 0; i < 2; i++) {
+                        zapatos.forEach(zapatilla => {
+                            const precio = parseFloat(zapatilla.precio);
+                            const cambio = Math.random() > 0.5 ? '+' : '-';
+                            const porcentaje = (Math.random() * 20).toFixed(2);
+                            const isDown = cambio === '-';
+                            
+                            const item = document.createElement('div');
+                            item.className = 'ticker-item';
+                            item.innerHTML = `
+                                <span class="ticker-name">${zapatilla.marca.toUpperCase()} ${zapatilla.modelo.toUpperCase().substring(0, 20)}</span>
+                                <span class="ticker-price ${isDown ? 'down' : ''}">${cambio}${porcentaje}%</span>
+                            `;
+                            tickerContent.appendChild(item);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading ticker:', e);
+            }
+        }
+        
+        cargarTicker();
+
         async function actualizarCarrito() {
             try {
                 const res = await fetch('/api/carrito');
