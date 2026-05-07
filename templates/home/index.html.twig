@@ -401,57 +401,57 @@
 <!-- HERO SECTION -->
 <div class="hero-container">
     <div class="hero-content">
-        <div class="hero-label">✓ TRENDING NOW</div>
-        <h1 class="hero-title">THE NEXT WAVE OF AUTHENTICITY.</h1>
+        <div class="hero-label">✓ TENDENCIA AHORA</div>
+        <h1 class="hero-title">LA PRÓXIMA OLA DE AUTENTICIDAD.</h1>
         <p class="hero-description">
-            Access the world's most sought-after sneakers, apparel, and collectibles. Verified authentic, every time.
+            Accede a las zapatillas, prendas y artículos coleccionables más buscados del mundo. Autenticidad verificada, siempre.
         </p>
         <div class="hero-buttons">
-            <a href="/zapatillas?type=drops" class="btn-shop">SHOP DROPS</a>
-            <a href="{% if app.user %}/vendedor/solicitar{% else %}{{ path('app_auth_login') }}{% endif %}" class="btn-sell">SELL NOW</a>
+            <a href="/zapatillas?type=drops" class="btn-shop">COMPRA LANZAMIENTOS</a>
+            <a href="{% if app.user %}/vendedor/solicitar{% else %}{{ path('app_auth_login') }}{% endif %}" class="btn-sell">VENDE AHORA</a>
         </div>
     </div>
     <div class="hero-image"></div>
 </div>
 
-<!-- NEW RELEASES -->
+<!-- LANZAMIENTOS NUEVOS -->
 <div class="section-header">
-    <h2 class="section-title">NEW RELEASES</h2>
-    <a href="/zapatillas" class="see-all">SEE ALL</a>
+    <h2 class="section-title">LANZAMIENTOS NUEVOS</h2>
+    <a href="/zapatillas" class="see-all">VER TODO</a>
 </div>
-<p style="font-size: 13px; color: #666; margin-bottom: 20px;">The latest additions to the market.</p>
+<p style="font-size: 13px; color: #666; margin-bottom: 20px;">Los últimos añadidos al mercado.</p>
 
 <div class="product-grid" id="new-releases">
     <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Cargando...</div>
 </div>
 
-<!-- PROMO SECTION -->
+<!-- SECCIÓN PROMO -->
 <div class="promo-section">
     <div class="promo-content">
-        <div class="promo-subtitle">THE SELLERS HANDBOOK</div>
-        <h2 class="promo-title">MAXIMIZE YOUR RETURN ON EVERY DROP</h2>
-        <p class="promo-description">Learn insider strategies to grow your sneaker resale business</p>
-        <a href="#" class="btn-promo">READ THE GUIDE</a>
+        <div class="promo-subtitle">MANUAL DEL VENDEDOR</div>
+        <h2 class="promo-title">MAXIMIZA TUS GANANCIAS EN CADA LANZAMIENTO</h2>
+        <p class="promo-description">Aprende estrategias de expertos para crecer tu negocio de reventa de zapatillas</p>
+        <a href="#" class="btn-promo">LEE LA GUÍA</a>
     </div>
 </div>
 
-<!-- MOST POPULAR -->
+<!-- MÁS POPULAR -->
 <div class="section-header">
-    <h2 class="section-title">MOST POPULAR</h2>
-    <a href="/zapatillas?sort=popularity" class="see-all">SEE ALL</a>
+    <h2 class="section-title">MÁS POPULAR</h2>
+    <a href="/zapatillas?sort=popularity" class="see-all">VER TODO</a>
 </div>
-<p style="font-size: 13px; color: #666; margin-bottom: 20px;">The highest volume trades of the last 24 hours.</p>
+<p style="font-size: 13px; color: #666; margin-bottom: 20px;">Las transacciones de mayor volumen de las últimas 24 horas.</p>
 
 <div class="product-grid" id="most-popular">
     <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Cargando...</div>
 </div>
 
-<!-- UPCOMING DROPS -->
+<!-- PRÓXIMOS LANZAMIENTOS -->
 <div class="section-header">
-    <h2 class="section-title">UPCOMING DROPS</h2>
-    <a href="/zapatillas?sort=upcoming" class="see-all">CALENDAR</a>
+    <h2 class="section-title">PRÓXIMOS LANZAMIENTOS</h2>
+    <a href="/zapatillas?sort=upcoming" class="see-all">CALENDARIO</a>
 </div>
-<p style="font-size: 13px; color: #666; margin-bottom: 20px;">Set your alarms. These won't last long.</p>
+<p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pon la alarma. Estos no durarán.</p>
 
 <div class="product-grid" id="upcoming-drops" style="grid-template-columns: repeat(3, 1fr);">
     <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #999;">Cargando...</div>

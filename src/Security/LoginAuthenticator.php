@@ -57,7 +57,7 @@ class LoginAuthenticator extends AbstractAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('app_mi_perfil'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response

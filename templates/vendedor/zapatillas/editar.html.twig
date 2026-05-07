@@ -9,9 +9,12 @@
     {% if app.flashes %}
         {% for type, messages in app.flashes %}
             {% for message in messages %}
-                    {% set bgColor = (type == 'success') ? '#d4edda' : ((type == 'error') ? '#f8d7da' : '#d1ecf1') %}
-                    {% set textColor = (type == 'success') ? '#155724' : ((type == 'error') ? '#721c24' : '#0c5460') %}
-                    <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; background: {{ bgColor }}; color: {{ textColor }};">
+                {% set bgColor = (type == 'success') ? '#d4edda' : ((type == 'error') ? '#f8d7da' : '#d1ecf1') %}
+                {% set textColor = (type == 'success') ? '#155724' : ((type == 'error') ? '#721c24' : '#0c5460') %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; background: {{ bgColor }}; color: {{ textColor }};">
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endfor %}
     {% endif %}
 

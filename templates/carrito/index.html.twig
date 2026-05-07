@@ -1,6 +1,6 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Your Cart - UrbanSole{% endblock %}
+{% block title %}Tu Carrito - UrbanSole{% endblock %}
 
 {% block body %}
 <style>
@@ -273,18 +273,18 @@
 <div style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
     <div class="cart-header-section">
         <div>
-            <h1 class="cart-title">YOUR CART</h1>
-            <p class="cart-subtitle"><span id="itemCount">0</span> ITEMS IN YOUR SELECTION</p>
+            <h1 class="cart-title">TU CARRITO</h1>
+            <p class="cart-subtitle"><span id="itemCount">0</span> ARTÍCULOS EN TU SELECCIÓN</p>
         </div>
     </div>
 
     <div class="cart-container">
         <div class="cart-items-section" id="cartContent">
-            <div style="text-align: center; padding: 40px; color: #999;">Loading your cart...</div>
+            <div style="text-align: center; padding: 40px; color: #999;">Cargando tu carrito...</div>
         </div>
 
         <div class="cart-summary">
-            <div class="summary-title">ORDER SUMMARY</div>
+            <div class="summary-title">RESUMEN DEL PEDIDO</div>
 
             <div class="summary-row">
                 <span>SUBTOTAL</span>
@@ -292,13 +292,13 @@
             </div>
 
             <div class="summary-row">
-                <span>PROCESSING FEES</span>
+                <span>GASTOS DE PROCESAMIENTO</span>
                 <span id="fees">$0.00</span>
             </div>
 
             <div class="summary-row">
-                <span>EXPRESS SHIPPING</span>
-                <span id="shipping" style="color: #00ff00; font-weight: 700;">FREE</span>
+                <span>ENVÍO EXPRESS</span>
+                <span id="shipping" style="color: #00ff00; font-weight: 700;">GRATIS</span>
             </div>
 
             <div class="summary-row total">
@@ -306,17 +306,17 @@
                 <span id="total">$0.00</span>
             </div>
 
-            <button class="btn-checkout" id="checkoutBtn" onclick="irAlCheckout()">PROCEED TO CHECKOUT →</button>
-            <a href="/zapatillas" class="btn-continue">CONTINUE SHOPPING</a>
+            <button class="btn-checkout" id="checkoutBtn" onclick="irAlCheckout()">PROCEDER AL PAGO →</button>
+            <a href="/zapatillas" class="btn-continue">CONTINUAR COMPRANDO</a>
 
             <div class="guarantee">
-                <div class="guarantee-title">🟢 AUTHENTICITY GUARANTEED</div>
-                <div>Every pair is hand-inspected by our team of expert authentication specialists before shipping.</div>
+                <div class="guarantee-title">🟢 AUTENTICIDAD GARANTIZADA</div>
+                <div>Cada par es inspeccionado manualmente por nuestro equipo de especialistas en autenticación antes del envío.</div>
             </div>
 
             <div class="guarantee" style="border-left-color: #000; border-left-width: 3px; margin-top: 12px;">
-                <div class="guarantee-title">🔒 SECURE TRANSACTION</div>
-                <div>Encrypted payment processing and buyer protection on every secondary market exchange.</div>
+                <div class="guarantee-title">🔒 TRANSACCIÓN SEGURA</div>
+                <div>Procesamiento de pagos encriptado y protección del comprador en cada transacción del mercado secundario.</div>
             </div>
         </div>
     </div>
@@ -330,7 +330,7 @@ async function cargarCarrito() {
         const response = await fetch('/api/carrito');
         
         if (response.status === 401) {
-            document.getElementById('cartContent').innerHTML = `<div class="empty-cart"><p>Sign in to view your cart</p><a href="{{ path('app_auth_login') }}" class="btn-checkout" style="display:inline-block;width:auto;margin-top:0;">SIGN IN</a></div>`;
+            document.getElementById('cartContent').innerHTML = `<div class="empty-cart"><p>Inicia sesión para ver tu carrito</p><a href="{{ path('app_auth_login') }}" class="btn-checkout" style="display:inline-block;width:auto;margin-top:0;">INICIAR SESIÓN</a></div>`;
             return;
         }
 

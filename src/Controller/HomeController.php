@@ -17,15 +17,8 @@ class HomeController extends AbstractController
     #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
     public function dashboard(): Response
     {
-        $usuario = $this->getUser();
-        
-        if (!$usuario) {
-            return $this->redirectToRoute('app_auth_login');
-        }
-
-        return $this->render('home/dashboard.html.twig', [
-            'usuario' => $usuario
-        ]);
+        // Redirigir al perfil del usuario
+        return $this->redirectToRoute('app_mi_perfil');
     }
 
     #[Route('/zapatillas', name: 'app_zapatillas_list', methods: ['GET'])]

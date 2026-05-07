@@ -375,8 +375,7 @@
 
                 <nav>
                     <ul>
-                        <li><a href="/zapatillas?type=drops" class="active">DROPS</a></li>
-                        <li><a href="/zapatillas">MARKET</a></li>
+                        <li><a href="/zapatillas" class="{% if app.request.attributes.get('_route') == 'app_zapatillas_list' %}active{% endif %}">MARKET</a></li>
                         {% if app.user %}
                             <li><a href="/vendedor/solicitar">SELL</a></li>
                         {% endif %}
@@ -390,19 +389,19 @@
 
             <div class="header-right">
                 <div class="header-icons">
-                    <button class="icon-button" onclick="window.location.href='/carrito'" title="Shopping cart">
+                    <button class="icon-button" onclick="window.location.href='/carrito'" title="Carrito de compras">
                         🛒
                         <span class="cart-badge" id="cartCount">0</span>
                     </button>
-                    <button class="icon-button" onclick="window.location.href='/mi-perfil'" title="Profile">
+                    <button class="icon-button" onclick="irAlPerfil()" title="Perfil">
                         👤
                     </button>
                 </div>
 
                 {% if app.user %}
-                    <a href="{{ path('app_auth_logout') }}" class="login-button">Sign Out</a>
+                    <a href="{{ path('app_auth_logout') }}" class="login-button">Cerrar Sesión</a>
                 {% else %}
-                    <a href="{{ path('app_auth_login') }}" class="login-button">Sign In</a>
+                    <a href="{{ path('app_auth_login') }}" class="login-button">Iniciar Sesión</a>
                 {% endif %}
             </div>
         </div>
@@ -415,56 +414,76 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h4>TERMS</h4>
+                <h4>TÉRMINOS</h4>
                 <ul>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Términos de Servicio</a></li>
+                    <li><a href="#">Política de Privacidad</a></li>
                     <li><a href="#">Cookies</a></li>
-                    <li><a href="#">Accessibility</a></li>
+                    <li><a href="#">Accesibilidad</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h4>PRIVACY</h4>
+                <h4>PRIVACIDAD</h4>
                 <ul>
-                    <li><a href="#">Data Protection</a></li>
-                    <li><a href="#">Your Privacy Rights</a></li>
+                    <li><a href="#">Protección de Datos</a></li>
+                    <li><a href="#">Tus Derechos de Privacidad</a></li>
                     <li><a href="#">Opt-out</a></li>
-                    <li><a href="#">Cookie Settings</a></li>
+                    <li><a href="#">Configuración de Cookies</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h4>ACCESSIBILITY</h4>
+                <h4>ACCESIBILIDAD</h4>
                 <ul>
-                    <li><a href="#">Accessibility Help</a></li>
-                    <li><a href="#">Accessibility Policy</a></li>
-                    <li><a href="#">Accessibility Statement</a></li>
+                    <li><a href="#">Ayuda de Accesibilidad</a></li>
+                    <li><a href="#">Política de Accesibilidad</a></li>
+                    <li><a href="#">Declaración de Accesibilidad</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h4>HELP</h4>
+                <h4>AYUDA</h4>
                 <ul>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">Support Center</a></li>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">System Status</a></li>
+                    <li><a href="#">Contáctanos</a></li>
+                    <li><a href="#">Centro de Soporte</a></li>
+                    <li><a href="#">Preguntas Frecuentes</a></li>
+                    <li><a href="#">Estado del Sistema</a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h4>MARKET DATA</h4>
+                <h4>DATOS DEL MERCADO</h4>
                 <ul>
-                    <li><a href="#">Latest Prices</a></li>
-                    <li><a href="#">Price Trends</a></li>
-                    <li><a href="#">Market Analysis</a></li>
-                    <li><a href="#">Forecasts</a></li>
+                    <li><a href="#">Precios Actuales</a></li>
+                    <li><a href="#">Tendencias de Precios</a></li>
+                    <li><a href="#">Análisis de Mercado</a></li>
+                    <li><a href="#">Pronósticos</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <strong>© 2024 URBAN SOLE. VERIFIED AUTHENTICITY.</strong>
+            <strong>© 2024 URBAN SOLE. AUTENTICIDAD VERIFICADA.</strong>
         </div>
     </footer>
 
     <script>
+        // Navegar a perfil con validación
+        function irAlPerfil() {
+            const userAuthenticated = {{ app.user ? 'true' : 'false' }};
+            if (userAuthenticated) {
+                window.location.href = '/mi-perfil';
+            } else {
+                window.location.href = '/auth/login';
+            }
+        }
+
+        // Manejo de búsqueda
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchTerm = this.value.trim();
+                if (searchTerm) {
+                    window.location.href = '/zapatillas?search=' + encodeURIComponent(searchTerm);
+                }
+            }
+        });
+
         // Cargar ticker con zapatillas reales
         async function cargarTicker() {
             try {
