@@ -532,6 +532,9 @@
 
 <script>
     let allProducts = [];
+    let paginationData = {};
+    let currentPage = 1;
+    const itemsPerPage = 12;
 
     // Función para obtener URL de imagen
     function getImageUrl(brand, model) {
@@ -561,16 +564,20 @@
         return 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop';
     }
 
-    async function loadProducts() {
+    async function cargarZapatillas(pagina = 1) {
         try {
-            const response = await fetch('/api/zapatillas?limit=30');
+            currentPage = pagina;
+            const response = await fetch(`/api/zapatillas?pagina=${pagina}&limit=${itemsPerPage}`);
             const data = await response.json();
             
             if (data.zapatillas && data.zapatillas.length > 0) {
                 allProducts = data.zapatillas;
+                paginationData = data.paginacion;
                 renderProducts(allProducts);
+                renderPagination(paginationData);
             } else {
                 document.getElementById('productGrid').innerHTML = '<div class="empty-state"><p>No hay productos disponibles</p></div>';
+                renderPagination({ total_paginas: 0 });
             }
         } catch (error) {
             console.error('Error loading products:', error);
@@ -586,7 +593,7 @@
             return;
         }
 
-        grid.innerHTML = products.slice(0, 9).map(product => `
+        grid.innerHTML = products.map(product => `
             <a href="/zapatillas/${product.id}" class="product-card">
                 <div class="product-badge">VERIFIED</div>
                 <div class="product-image"><img src="${getImageUrl(product.marca, product.modelo)}" alt="${product.modelo}" style="width:100%; height:100%; object-fit:cover;"></div>
@@ -601,6 +608,60 @@
                 </div>
             </a>
         `).join('');
+    }
+
+    function renderPagination(pag) {
+        const paginationContainer = document.querySelector('.pagination');
+        if (!pag || pag.total_paginas <= 1) {
+            paginationContainer.innerHTML = '';
+            return;
+        }
+
+        let html = '';
+        const totalPages = pag.total_paginas;
+        const currentPage = pag.pagina_actual;
+
+        // Botón anterior
+        if (currentPage > 1) {
+            html += `<a href="#" onclick="cargarZapatillas(${currentPage - 1}); return false;">←</a>`;
+        } else {
+            html += `<span style="opacity: 0.3;">←</span>`;
+        }
+
+        // Números de página
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+
+        if (startPage > 1) {
+            html += `<a href="#" onclick="cargarZapatillas(1); return false;">1</a>`;
+            if (startPage > 2) {
+                html += `<span class="dots">...</span>`;
+            }
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            if (i === currentPage) {
+                html += `<span class="current">${i}</span>`;
+            } else {
+                html += `<a href="#" onclick="cargarZapatillas(${i}); return false;">${i}</a>`;
+            }
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="dots">...</span>`;
+            }
+            html += `<a href="#" onclick="cargarZapatillas(${totalPages}); return false;">${totalPages}</a>`;
+        }
+
+        // Botón siguiente
+        if (currentPage < totalPages) {
+            html += `<a href="#" onclick="cargarZapatillas(${currentPage + 1}); return false;">→</a>`;
+        } else {
+            html += `<span style="opacity: 0.3;">→</span>`;
+        }
+
+        paginationContainer.innerHTML = html;
     }
 
     function applyPriceFilter() {

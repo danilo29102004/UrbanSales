@@ -70,4 +70,44 @@ class ZapatillaService
     {
         return $this->zapatillaRepository->findAll();
     }
+
+    public function obtenerConPaginacion(int $pagina = 1, int $limit = 12): array
+    {
+        $offset = ($pagina - 1) * $limit;
+        
+        $total = $this->zapatillaRepository->count([]);
+        $totalPaginas = ceil($total / $limit);
+        
+        $zapatos = $this->zapatillaRepository->findBy([], [], $limit, $offset);
+        
+        return [
+            'zapatillas' => $zapatos,
+            'pagina_actual' => $pagina,
+            'total_paginas' => $totalPaginas,
+            'total_items' => $total,
+            'items_por_pagina' => $limit,
+            'tiene_siguiente' => $pagina < $totalPaginas,
+            'tiene_anterior' => $pagina > 1
+        ];
+    }
+
+    public function obtenerPorCategoriaConPaginacion(Categoria $categoria, int $pagina = 1, int $limit = 12): array
+    {
+        $offset = ($pagina - 1) * $limit;
+        
+        $total = $this->zapatillaRepository->count(['categoria' => $categoria]);
+        $totalPaginas = ceil($total / $limit);
+        
+        $zapatos = $this->zapatillaRepository->findBy(['categoria' => $categoria], [], $limit, $offset);
+        
+        return [
+            'zapatillas' => $zapatos,
+            'pagina_actual' => $pagina,
+            'total_paginas' => $totalPaginas,
+            'total_items' => $total,
+            'items_por_pagina' => $limit,
+            'tiene_siguiente' => $pagina < $totalPaginas,
+            'tiene_anterior' => $pagina > 1
+        ];
+    }
 }

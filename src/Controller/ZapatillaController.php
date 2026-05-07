@@ -28,18 +28,24 @@ class ZapatillaController extends AbstractController
     public function listar(Request $request): Response
     {
         try {
-            $categoriaId = $request->get('categoria_id');
+            $categoriaId = $request->query->get('categoria_id');
+            $pagina = (int)$request->query->get('pagina', 1);
+            $limit = (int)$request->query->get('limit', 12);
+
+            if ($pagina < 1) $pagina = 1;
+            if ($limit < 1 || $limit > 100) $limit = 12;
 
             if ($categoriaId) {
                 $categoria = $this->categoriaRepository->find($categoriaId);
                 if (!$categoria) {
                     return $this->json(['error' => 'Categoría no encontrada'], 404);
                 }
-                $zapatillas = $this->zapatillaService->obtenerPorCategoria($categoria);
+                $datos = $this->zapatillaService->obtenerPorCategoriaConPaginacion($categoria, $pagina, $limit);
             } else {
-                $zapatillas = $this->zapatillaService->obtenerTodas();
+                $datos = $this->zapatillaService->obtenerConPaginacion($pagina, $limit);
             }
 
+            $zapatillas = $datos['zapatillas'];
             $resultado = [];
             foreach ($zapatillas as $zapatilla) {
                 $resultado[] = [
@@ -54,7 +60,17 @@ class ZapatillaController extends AbstractController
                 ];
             }
 
-            return $this->json(['zapatillas' => $resultado]);
+            return $this->json([
+                'zapatillas' => $resultado,
+                'paginacion' => [
+                    'pagina_actual' => $datos['pagina_actual'],
+                    'total_paginas' => $datos['total_paginas'],
+                    'total_items' => $datos['total_items'],
+                    'items_por_pagina' => $datos['items_por_pagina'],
+                    'tiene_siguiente' => $datos['tiene_siguiente'],
+                    'tiene_anterior' => $datos['tiene_anterior']
+                ]
+            ]);
 
         } catch (\Exception $e) {
             return $this->json(['error' => $e->getMessage()], 400);
