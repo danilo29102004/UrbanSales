@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\CategoriaRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,9 +23,12 @@ class HomeController extends AbstractController
     }
 
     #[Route('/zapatillas', name: 'app_zapatillas_list', methods: ['GET'])]
-    public function zapatillas(): Response
+    public function zapatillas(CategoriaRepository $categoriaRepository): Response
     {
-        return $this->render('zapatillas/index.html.twig');
+        $categorias = $categoriaRepository->findAll();
+        return $this->render('zapatillas/index.html.twig', [
+            'categorias' => $categorias
+        ]);
     }
 
     #[Route('/carrito', name: 'app_carrito', methods: ['GET'])]

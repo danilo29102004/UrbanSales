@@ -384,18 +384,12 @@
         <div class="filter-section">
             <div class="filter-title">CATEGORY</div>
             <div class="filter-options">
+                {% for categoria in categorias %}
                 <div class="filter-option">
-                    <input type="checkbox" class="category-filter" value="Basketball">
-                    <label>Basketball</label>
+                    <input type="checkbox" class="category-filter" value="{{ categoria.id }}" data-category-name="{{ categoria.nombre }}">
+                    <label>{{ categoria.nombre|upper }}</label>
                 </div>
-                <div class="filter-option">
-                    <input type="checkbox" class="category-filter" value="Lifestyle">
-                    <label>Lifestyle</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" class="category-filter" value="Running">
-                    <label>Running</label>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -610,6 +604,46 @@
         
         renderProducts(sorted);
     });
+
+    // Event listeners para filtros de categoría
+    document.querySelectorAll('.category-filter').forEach(checkbox => {
+        checkbox.addEventListener('change', async function() {
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked'))
+                .map(cb => cb.value);
+            
+            if (selectedCategories.length === 0) {
+                // Si no hay categorías seleccionadas, cargar todas las zapatillas
+                cargarZapatillas();
+            } else {
+                // Cargar zapatillas de la primera categoría seleccionada
+                // (Para multi-select, sería necesario ajustar la lógica en el backend)
+                const categoryId = selectedCategories[0];
+                await cargarZapatillasPorCategoria(categoryId);
+            }
+        });
+    });
+
+    // Función para cargar zapatillas por categoría
+    async function cargarZapatillasPorCategoria(categoriaId) {
+        try {
+            window.currentPage = 1;
+            const response = await fetch(`/api/zapatillas?categoria_id=${categoriaId}&pagina=1&limit=${window.itemsPerPage || 12}`);
+            const data = await response.json();
+            
+            if (data.zapatillas && data.zapatillas.length > 0) {
+                window.allProducts = data.zapatillas;
+                window.paginationData = data.paginacion;
+                renderProducts(window.allProducts);
+                renderPagination(window.paginationData);
+            } else {
+                document.getElementById('productGrid').innerHTML = '<div class="empty-state"><p>No hay productos en esta categoría</p></div>';
+                renderPagination({ total_paginas: 0 });
+            }
+        } catch (error) {
+            console.error('Error loading products by category:', error);
+            document.getElementById('productGrid').innerHTML = '<div class="empty-state"><p>Error al cargar productos</p></div>';
+        }
+    }
 
     async function agregarCarrito(event, zapatillaId) {
         event.preventDefault();
