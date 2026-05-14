@@ -516,7 +516,7 @@
                             item.className = 'ticker-item';
                             item.innerHTML = `
                                 <span class="ticker-name">${zapatilla.marca.toUpperCase()} ${zapatilla.modelo.toUpperCase().substring(0, 20)}</span>
-                                <span class="ticker-price ${isDown ? 'down' : ''}">${cambio}${porcentaje}%</span>
+                                <span class="ticker-change ${isDown ? 'down' : 'up'}">${cambio}${porcentaje}%</span>
                             `;
                             tickerContent.appendChild(item);
                         });

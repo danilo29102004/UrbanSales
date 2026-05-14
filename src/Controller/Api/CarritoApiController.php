@@ -33,6 +33,18 @@ class CarritoApiController extends AbstractController
             $detalles = [];
             foreach ($carrito->getDetalleCarritos() as $detalle) {
                 $zapatilla = $detalle->getZapatilla();
+                
+                // Obtener imágenes de la zapatilla
+                $imagenes = [];
+                foreach ($zapatilla->getImagenes() as $img) {
+                    $imagenes[] = $img->getRuta();
+                }
+                
+                // Si no hay imágenes en la tabla, usar la imagen legacy
+                if (empty($imagenes) && $zapatilla->getImagen()) {
+                    $imagenes[] = $zapatilla->getImagen();
+                }
+                
                 $detalles[] = [
                     'id' => $detalle->getId(),
                     'cantidad' => $detalle->getCantidad(),
@@ -42,7 +54,9 @@ class CarritoApiController extends AbstractController
                         'modelo' => $zapatilla->getModelo(),
                         'marca' => $zapatilla->getMarca(),
                         'talla' => $zapatilla->getTalla(),
-                        'precio' => (float)$zapatilla->getPrecio()
+                        'precio' => (float)$zapatilla->getPrecio(),
+                        'imagen' => $zapatilla->getImagen(),
+                        'imagenes' => $imagenes
                     ]
                 ];
             }

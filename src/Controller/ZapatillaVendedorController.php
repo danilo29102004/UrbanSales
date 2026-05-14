@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Zapatilla;
 use App\Entity\Categoria;
+use App\Entity\ZapatillaImagen;
 use App\Service\ZapatillaUploadService;
 use App\Repository\CategoriaRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -84,9 +85,25 @@ class ZapatillaVendedorController extends AbstractController
                 $zapatilla->setCategoria($categoria);
                 $zapatilla->setVendedor($usuario);
 
-                // Procesar imagen si existe
-                $uploadedFile = $request->files->get('imagen');
-                if ($uploadedFile) {
+                // Procesar imágenes
+                $uploadedFiles = $request->files->get('imagenes');
+                if (!$uploadedFiles || count($uploadedFiles) < 1) {
+                    $this->addFlash('error', 'Debes subir al menos 1 imagen para crear la zapatilla');
+                    return $this->redirectToRoute('app_vendedor_zapatillas_crear');
+                }
+
+                // Guardar zapatilla primero
+                $this->em->persist($zapatilla);
+                $this->em->flush();
+
+                // Procesar cada imagen
+                $orden = 0;
+                $firstImagePath = null;
+                foreach ($uploadedFiles as $uploadedFile) {
+                    if (!$uploadedFile) {
+                        continue;
+                    }
+
                     // Validar que sea una imagen
                     $mimeType = $uploadedFile->getMimeType();
                     if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
@@ -96,20 +113,40 @@ class ZapatillaVendedorController extends AbstractController
 
                     // Validar tamaño (máximo 5MB)
                     if ($uploadedFile->getSize() > 5 * 1024 * 1024) {
-                        $this->addFlash('error', 'La imagen no debe superar 5MB');
+                        $this->addFlash('error', 'Cada imagen no debe superar 5MB');
                         return $this->redirectToRoute('app_vendedor_zapatillas_crear');
                     }
 
                     $imagenPath = $this->uploadService->uploadImage($uploadedFile);
-                    $zapatilla->setImagen($imagenPath);
+                    
+                    // Crear entidad ZapatillaImagen
+                    $zapatillaImagen = new ZapatillaImagen();
+                    $zapatillaImagen->setZapatilla($zapatilla);
+                    $zapatillaImagen->setRuta($imagenPath);
+                    $zapatillaImagen->setOrden($orden);
+                    
+                    $zapatilla->addImagen($zapatillaImagen);
+                    $this->em->persist($zapatillaImagen);
+                    
+                    // Guardar la primera imagen para el campo legacy
+                    if ($orden === 0) {
+                        $firstImagePath = $imagenPath;
+                    }
+                    
+                    $orden++;
+                }
+
+                // Guardar la primera imagen en el campo legacy 'imagen' para compatibilidad
+                if ($firstImagePath) {
+                    $zapatilla->setImagen($firstImagePath);
                 }
 
                 // Guardar en BD
                 $this->em->persist($zapatilla);
                 $this->em->flush();
 
-                $this->addFlash('success', 'Zapatilla creada exitosamente');
-                return $this->redirectToRoute('app_vendedor_zapatillas_listar');
+                $this->addFlash('success', 'Zapatilla creada exitosamente. Ahora agrega 2 imágenes más (mínimo 3).');
+                return $this->redirectToRoute('app_vendedor_zapatillas_agregar_imagenes', ['id' => $zapatilla->getId()]);
 
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al crear la zapatilla: ' . $e->getMessage());
@@ -215,4 +252,83 @@ class ZapatillaVendedorController extends AbstractController
 
         return $this->redirectToRoute('app_vendedor_zapatillas_listar');
     }
+
+    #[Route('/{id}/agregar-imagenes', name: 'app_vendedor_zapatillas_agregar_imagenes', methods: ['GET'])]
+    public function agregarImagenesForm(int $id): Response
+    {
+        $usuario = $this->getUser();
+        $zapatilla = $this->em->getRepository(Zapatilla::class)->find($id);
+
+        // Validar que la zapatilla existe y pertenece al usuario
+        if (!$zapatilla || $zapatilla->getVendedor()->getId() !== $usuario->getId()) {
+            throw $this->createNotFoundException('Zapatilla no encontrada');
+        }
+
+        return $this->render('vendedor/zapatillas/agregar_imagenes.html.twig', [
+            'zapatilla' => $zapatilla
+        ]);
+    }
+
+    #[Route('/{id}/agregar-imagen', name: 'app_vendedor_zapatilla_agregar_imagen', methods: ['POST'])]
+    public function agregarImagen(Request $request, int $id): Response
+    {
+        $usuario = $this->getUser();
+        $zapatilla = $this->em->getRepository(Zapatilla::class)->find($id);
+
+        // Validar que la zapatilla existe y pertenece al usuario
+        if (!$zapatilla || $zapatilla->getVendedor()->getId() !== $usuario->getId()) {
+            return $this->json(['error' => 'Zapatilla no encontrada'], 404);
+        }
+
+        try {
+            $uploadedFile = $request->files->get('imagen');
+            if (!$uploadedFile) {
+                return $this->json(['error' => 'No se envió ninguna imagen'], 400);
+            }
+
+            // Validar que sea una imagen
+            $mimeType = $uploadedFile->getMimeType();
+            if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/gif', 'image/webp'])) {
+                return $this->json(['error' => 'El archivo debe ser una imagen válida (JPG, PNG, GIF, WebP)'], 400);
+            }
+
+            // Validar tamaño (máximo 5MB)
+            if ($uploadedFile->getSize() > 5 * 1024 * 1024) {
+                return $this->json(['error' => 'La imagen no debe superar 5MB'], 400);
+            }
+
+            // Subir imagen
+            $imagenPath = $this->uploadService->uploadImage($uploadedFile);
+            
+            // Obtener el próximo orden
+            $proximoOrden = count($zapatilla->getImagenes());
+
+            // Crear entidad ZapatillaImagen
+            $zapatillaImagen = new ZapatillaImagen();
+            $zapatillaImagen->setZapatilla($zapatilla);
+            $zapatillaImagen->setRuta($imagenPath);
+            $zapatillaImagen->setOrden($proximoOrden);
+            
+            $zapatilla->addImagen($zapatillaImagen);
+            $this->em->persist($zapatillaImagen);
+
+            // Si es la primera imagen, guardarla en el campo legacy
+            if ($proximoOrden === 0) {
+                $zapatilla->setImagen($imagenPath);
+            }
+
+            $this->em->flush();
+
+            return $this->json([
+                'success' => true,
+                'message' => 'Imagen agregada exitosamente',
+                'ruta' => $imagenPath,
+                'totalImagenes' => count($zapatilla->getImagenes())
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Error al subir imagen: ' . $e->getMessage()], 400);
+        }
+    }
 }
+

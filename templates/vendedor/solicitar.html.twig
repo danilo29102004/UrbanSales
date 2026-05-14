@@ -59,7 +59,7 @@
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <a href="{{ path('app_vendedor_panel') }}" class="btn-submit" style="text-decoration: none; text-align: center;">Mi Panel de Vendedor</a>
-                    <a href="{{ path('app_zapatilla_crear_formulario') }}" class="btn-submit" style="text-decoration: none; text-align: center; background-color: #28a745;">Subir Zapatillas</a>
+                    <a href="{{ path('app_vendedor_zapatillas_crear') }}" class="btn-submit" style="text-decoration: none; text-align: center; background-color: #28a745;">Subir Zapatillas</a>
                 </div>
             {% elseif vendedor.estado == 'RECHAZADO' %}
                 <div class="form-error" style="background-color: #f8d7da; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">

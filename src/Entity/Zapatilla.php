@@ -47,9 +47,17 @@ class Zapatilla
     #[ORM\OneToMany(targetEntity: DetallePedido::class, mappedBy: 'zapatilla')]
     private Collection $detallePedidos;
 
+    /**
+     * @var Collection<int, ZapatillaImagen>
+     */
+    #[ORM\OneToMany(targetEntity: ZapatillaImagen::class, mappedBy: 'zapatilla', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\OrderBy(['orden' => 'ASC'])]
+    private Collection $imagenes;
+
     public function __construct()
     {
         $this->detallePedidos = new ArrayCollection();
+        $this->imagenes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -177,6 +185,36 @@ class Zapatilla
             // set the owning side to null (unless already changed)
             if ($detallePedido->getZapatilla() === $this) {
                 $detallePedido->setZapatilla(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ZapatillaImagen>
+     */
+    public function getImagenes(): Collection
+    {
+        return $this->imagenes;
+    }
+
+    public function addImagen(ZapatillaImagen $imagen): static
+    {
+        if (!$this->imagenes->contains($imagen)) {
+            $this->imagenes->add($imagen);
+            $imagen->setZapatilla($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImagen(ZapatillaImagen $imagen): static
+    {
+        if ($this->imagenes->removeElement($imagen)) {
+            // set the owning side to null (unless already changed)
+            if ($imagen->getZapatilla() === $this) {
+                $imagen->setZapatilla(null);
             }
         }
 

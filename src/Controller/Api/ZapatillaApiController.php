@@ -70,6 +70,17 @@ class ZapatillaApiController extends AbstractController
                 return $this->json(['error' => 'Zapatilla no encontrada'], 404);
             }
 
+            // Obtener todas las imágenes
+            $imagenes = [];
+            foreach ($zapatilla->getImagenes() as $img) {
+                $imagenes[] = $img->getRuta();
+            }
+
+            // Si no hay imágenes en la tabla, usar la imagen legacy
+            if (empty($imagenes) && $zapatilla->getImagen()) {
+                $imagenes[] = $zapatilla->getImagen();
+            }
+
             return $this->json([
                 'zapatilla' => [
                     'id' => $zapatilla->getId(),
@@ -82,6 +93,7 @@ class ZapatillaApiController extends AbstractController
                     'vendedor' => $zapatilla->getVendedor()?->getNombre(),
                     'vendedor_id' => $zapatilla->getVendedor()?->getId(),
                     'imagen' => $zapatilla->getImagen(),
+                    'imagenes' => $imagenes,
                 ]
             ]);
 

@@ -1,0 +1,215 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Agregar Imágenes - UrbanSole{% endblock %}
+
+{% block body %}
+<div class="container" style="max-width: 700px; margin: 40px auto; padding: 0 20px;">
+    <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 30px;">Agregar Imágenes a tu Zapatilla</h1>
+
+    {% if app.flashes %}
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                {% set bgColor = (type == 'success') ? '#d4edda' : ((type == 'error') ? '#f8d7da' : '#d1ecf1') %}
+                {% set textColor = (type == 'success') ? '#155724' : ((type == 'error') ? '#721c24' : '#0c5460') %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 4px; background: {{ bgColor }}; color: {{ textColor }};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- Información de la zapatilla -->
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 10px;">{{ zapatilla.marca }} {{ zapatilla.modelo }}</h2>
+        <p style="color: #666; margin: 5px 0;"><strong>Talla:</strong> {{ zapatilla.talla }}</p>
+        <p style="color: #666; margin: 5px 0;"><strong>Precio:</strong> €{{ zapatilla.precio }}</p>
+    </div>
+
+    <!-- Progreso de imágenes -->
+    <div style="background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin: 0; font-size: 1.2rem;">Imágenes</h3>
+            <span id="imageCount" style="background: #000; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+                <span id="currentCount">{{ zapatilla.imagenes|length }}</span> de 3
+            </span>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div style="background: #eee; border-radius: 10px; height: 10px; overflow: hidden; margin-bottom: 20px;">
+            <div id="progressBar" style="background: #000; height: 100%; width: {% if zapatilla.imagenes|length >= 3 %}100{% elseif zapatilla.imagenes|length == 2 %}66.67{% elseif zapatilla.imagenes|length == 1 %}33.33{% else %}0{% endif %}%; transition: width 0.3s; border-radius: 10px;"></div>
+        </div>
+
+        <!-- Imágenes actuales -->
+        {% if zapatilla.imagenes|length > 0 %}
+            <div style="margin-bottom: 20px;">
+                <p style="font-weight: 600; margin-bottom: 10px;">Imágenes cargadas:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                    {% for imagen in zapatilla.imagenes %}
+                        <div style="position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <img src="{{ asset('uploads/' ~ imagen.ruta) }}" alt="Imagen {{ loop.index }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="position: absolute; top: 5px; right: 5px; background: #000; color: #fff; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.8rem;">
+                                {{ loop.index }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Formulario para agregar imagen -->
+        {% if zapatilla.imagenes|length < 3 %}
+            <div style="border: 2px dashed #ddd; border-radius: 8px; padding: 24px; text-align: center; cursor: pointer; transition: border-color 0.3s;" id="dropZone">
+                <svg style="width: 48px; height: 48px; margin: 0 auto 12px; color: #999;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p style="color: #666; margin-bottom: 8px;">Arrastra tu imagen aquí o haz clic</p>
+                <p style="color: #999; font-size: 0.9rem;">JPG, PNG, GIF o WebP (máximo 5MB)</p>
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+            </div>
+
+            <p id="uploadStatus" style="margin-top: 12px; color: #666; font-size: 0.9rem; display: none;"></p>
+        {% endif %}
+    </div>
+
+    <!-- Botones de acción -->
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <a href="{{ path('app_vendedor_zapatillas_listar') }}" style="padding: 12px 24px; background: #e9e9e9; color: #000; border-radius: 4px; text-decoration: none; font-weight: 600; cursor: pointer;">Cancelar</a>
+        <button id="finishBtn" type="button" onclick="finalize()" style="padding: 12px 24px; background: {% if zapatilla.imagenes|length >= 3 %}#000{% else %}#ccc{% endif %}; color: #fff; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 1rem; {% if zapatilla.imagenes|length < 3 %}opacity: 0.5; cursor: not-allowed;{% endif %}" {% if zapatilla.imagenes|length < 3 %}disabled{% endif %}>
+            Finalizar
+        </button>
+    </div>
+</div>
+
+<script>
+    const zapatillaId = {{ zapatilla.id }};
+    const dropZone = document.getElementById('dropZone');
+    const imageInput = document.getElementById('imageInput');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const progressBar = document.getElementById('progressBar');
+    const imageCount = document.getElementById('imageCount');
+    const currentCount = document.getElementById('currentCount');
+    const finishBtn = document.getElementById('finishBtn');
+
+    let currentImages = {{ zapatilla.imagenes|length }};
+
+    // Click en la zona
+    if (dropZone) {
+        dropZone.addEventListener('click', () => imageInput.click());
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#000';
+            dropZone.style.backgroundColor = '#f9f9f9';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#ddd';
+            dropZone.style.backgroundColor = 'transparent';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#ddd';
+            dropZone.style.backgroundColor = 'transparent';
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                uploadImage(files[0]);
+            }
+        });
+
+        // Cambio de archivo
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                uploadImage(e.target.files[0]);
+            }
+        });
+    }
+
+    function uploadImage(file) {
+        // Validar tipo
+        if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+            showStatus('❌ Debe ser una imagen válida (JPG, PNG, GIF, WebP)', 'error');
+            return;
+        }
+
+        // Validar tamaño
+        if (file.size > 5 * 1024 * 1024) {
+            showStatus('❌ La imagen no debe superar 5MB', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('imagen', file);
+
+        showStatus('⏳ Subiendo imagen...', 'info');
+        if (dropZone) dropZone.style.pointerEvents = 'none';
+        if (imageInput) imageInput.disabled = true;
+
+        fetch(`{{ path('app_vendedor_zapatilla_agregar_imagen', {'id': zapatilla.id}) }}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentImages = data.totalImagenes;
+                updateProgress();
+                showStatus(`✓ Imagen ${currentImages} agregada exitosamente`, 'success');
+                if (imageInput) imageInput.value = '';
+
+                // Si alcanzó 3 imágenes, habilitar el botón de finalizar
+                if (currentImages >= 3) {
+                    enableFinishButton();
+                }
+            } else {
+                showStatus(`❌ Error: ${data.error || 'Error desconocido'}`, 'error');
+            }
+        })
+        .catch(error => {
+            showStatus(`❌ Error al subir: ${error.message}`, 'error');
+        })
+        .finally(() => {
+            if (dropZone) dropZone.style.pointerEvents = 'auto';
+            if (imageInput) imageInput.disabled = false;
+        });
+    }
+
+    function updateProgress() {
+        const percentage = (currentImages / 3) * 100;
+        progressBar.style.width = percentage + '%';
+        currentCount.textContent = currentImages;
+
+        if (currentImages >= 3) {
+            imageCount.style.background = '#28a745';
+        }
+    }
+
+    function showStatus(message, type) {
+        uploadStatus.textContent = message;
+        uploadStatus.style.display = 'block';
+        uploadStatus.style.color = type === 'error' ? '#d32f2f' : (type === 'info' ? '#1976d2' : '#388e3c');
+        uploadStatus.style.fontWeight = type === 'success' || type === 'error' ? '600' : '400';
+
+        if (type === 'success') {
+            setTimeout(() => {
+                uploadStatus.style.display = 'none';
+            }, 3000);
+        }
+    }
+
+    function enableFinishButton() {
+        finishBtn.style.background = '#000';
+        finishBtn.style.opacity = '1';
+        finishBtn.style.cursor = 'pointer';
+        finishBtn.disabled = false;
+    }
+
+    function finalize() {
+        if (currentImages >= 3) {
+            window.location.href = '{{ path('app_vendedor_zapatillas_listar') }}';
+        }
+    }
+</script>
+{% endblock %}
