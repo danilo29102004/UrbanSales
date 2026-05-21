@@ -87,7 +87,7 @@ class Categoria
     public function addZapatilla(Zapatilla $zapatilla): static
     {
         if (!$this->zapatillas->contains($zapatilla)) {
-            $this->zapatillas  ->add($zapatilla);
+            $this->zapatillas->add($zapatilla);
             $zapatilla->setCategoria($this);
         }
 
